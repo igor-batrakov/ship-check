@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Shop Assistant</title>
+</head>
+<body>
+  <h1>Shop Assistant</h1>
+
+  <h2>Ask the assistant</h2>
+  <form id="ask-form">
+    <input type="text" id="prompt" name="prompt" placeholder="Ask anything..." size="40" />
+    <button type="submit">Send</button>
+  </form>
+  <pre id="answer"></pre>
+
+  <h2>Look up an order</h2>
+  <form id="order-form">
+    <input type="text" id="order-id" name="order_id" placeholder="Order id" />
+    <button type="submit">Find</button>
+  </form>
+  <pre id="order"></pre>
+
+  <script>
+    document.getElementById("ask-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const prompt = document.getElementById("prompt").value;
+      const res = await fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      document.getElementById("answer").textContent = data.answer;
+    });
+
+    document.getElementById("order-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("order-id").value;
+      const res = await fetch("/orders/" + id);
+      const data = await res.json();
+      document.getElementById("order").textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
