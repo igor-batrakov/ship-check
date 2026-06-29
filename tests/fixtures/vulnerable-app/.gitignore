@@ -1,0 +1,3 @@
+node_modules/
+.next/
+# PLANTED VULN: .env is NOT listed here — secrets end up in git.

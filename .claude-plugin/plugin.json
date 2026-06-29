@@ -1,0 +1,6 @@
+{
+  "name": "ship-check",
+  "description": "Pre-launch security & production-readiness audit for vibe-coded apps. Run /ship-check before launch to find leaked secrets, missing RLS, unprotected paid APIs, missing rate-limit/CAPTCHA/CORS, OWASP issues, and compliance gaps — then fix them one at a time. Reports in your language.",
+  "version": "0.2.0",
+  "author": { "name": "igor" }
+}

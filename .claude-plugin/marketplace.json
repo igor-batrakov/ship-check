@@ -1,0 +1,18 @@
+{
+  "name": "ship-check-tools",
+  "description": "Pre-launch security & production-readiness audit for vibe-coded apps.",
+  "owner": {
+    "name": "igor"
+  },
+  "plugins": [
+    {
+      "name": "ship-check",
+      "description": "Pre-launch security audit for vibe-coded apps: leaked secrets, missing RLS, unprotected paid APIs, missing rate-limit/CAPTCHA/CORS, OWASP issues, and compliance gaps. One command, honest three-state report, replies in your language.",
+      "version": "0.2.0",
+      "source": "./",
+      "author": {
+        "name": "igor"
+      }
+    }
+  ]
+}
