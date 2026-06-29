@@ -3,7 +3,7 @@
 [English](README.md) | [Русский](README.ru.md) | [中文](README.zh.md) | [Español](README.es.md) | **Português**
 
 **Uma auditoria de segurança pré-lançamento para apps feitos no vibe coding.** Um comando — `/ship-check` — encontra os buracos
-que causam contas-surpresa de US$ 200, bots de spam e notificações extrajudiciais, e depois te guia pelas
+que causam contas-surpresa de $200, bots de spam e notificações extrajudiciais, e depois te guia pelas
 correções, uma de cada vez. Ele responde no seu idioma.
 
 > Feito para quem está começando agora. Você fala com ele em palavras simples; ele faz a verificação, explica
@@ -26,22 +26,22 @@ problemas com você — uma mudança de cada vez, com o seu aval.
 O `/ship-check` escreve o `PROD-AUDIT.md` com o veredito no topo e as coisas que te pegam primeiro:
 
 ```
-## Verdict: 🚫 NOT READY TO SHIP
+## Veredito: 🚫 NÃO ESTÁ PRONTO PARA LANÇAR
 
-Three issues can leak data or run up a bill the moment you launch.
+Lance isto hoje e três destes problemas te pegam logo no primeiro dia.
 
-## 🔥 Fix these first
-🔴 Your OpenAI key ships in the browser bundle (app/page.tsx:5) — anyone opens
-   DevTools and spends your credit.
-🔴 Row Level Security is off on `orders` (supabase/migrations/0001_init.sql) — any
-   visitor can read every customer's orders.
-🔴 /api/chat calls a paid API with no login and no rate limit — a bot can run up a
-   $200 bill overnight.
+## 🔥 Corrija estes primeiro
+🔴 Sua chave da OpenAI está parada no bundle do navegador (app/page.tsx:5) — qualquer
+   um abre o DevTools e gasta o seu crédito.
+🔴 O Row Level Security está desligado em `orders` — agora mesmo qualquer visitante
+   consegue ler o pedido de todo cliente.
+🔴 /api/chat chama uma API paga sem login e sem rate limit — um bot durante a noite
+   é uma conta de $200.
 
-## Data access
-🟢 Uploads bucket is private and served through signed URLs — checked, clean.
-🟡 Couldn't confirm RLS in the live database — your migrations enable it; open the
-   Supabase dashboard and verify.
+## Acesso aos dados
+🟢 O bucket de uploads é privado, servido através de URLs assinadas — verificado, limpo.
+🟡 Não foi possível confirmar o RLS no banco ao vivo a partir do código — suas
+   migrations o ativam; abra o painel do Supabase e confira de novo.
 ```
 
 Toda verificação cai em um de três estados:
@@ -58,18 +58,20 @@ Esse terceiro estado honesto é o ponto central: uma ferramenta que imprime ✅ 
 ```
 > /ship-check
 
-I see a Next.js + Supabase app. Running the pre-launch audit — about a minute.
+Vejo um app Next.js + Supabase. Rodando a auditoria pré-lançamento — cerca de um minuto.
 …
-Verdict: 🚫 not ready to ship. Three things will bite you on day one. Fix them together?
+Veredito: 🚫 não está pronto para lançar. Três coisas te pegariam logo no primeiro dia. Corrigir todas juntas?
 
-> yes
+> sim
 
-First: your OpenAI key is in the frontend bundle, so anyone can read it and spend your credit.
-I'll move the call to a server route and read the key from a server-only variable. Apply this?
+A primeira é a assustadora: sua chave da OpenAI está no bundle do frontend — qualquer um consegue
+lê-la e gastar o seu crédito. Vou mover a chamada para uma rota de servidor e ler a chave a partir de uma
+variável só de servidor. Aplicar isso?
 
-> go ahead
+> pode mandar
 
-Done — the key lives on the server now, and the page still builds. Next: Row Level Security…
+Pronto — a chave saiu do cliente e a página continua compilando. Esse é o risco da conta de $200 fechado.
+A seguir: Row Level Security em `orders`…
 ```
 
 ## O que ele verifica
@@ -84,7 +86,7 @@ Cinco áreas mais conformidade — a checklist original do vibe coder, com algun
   cadastro duplicado (uma checklist no navegador que você percorre clicando).
 - **🛡️ Segurança web (OWASP)** — headers, injeção de SQL, XSS, validação no servidor, modo debug
   deixado ligado em produção.
-- **💸 Abuso e custo** — chamadas desprotegidas a APIs pagas (o risco dos "US$ 200 da noite para o dia"), rate limiting,
+- **💸 Abuso e custo** — chamadas desprotegidas a APIs pagas (o risco dos "$200 da noite para o dia"), rate limiting,
   CAPTCHA em formulários, CORS.
 - **⚖️ Conformidade** — política de privacidade, GDPR/CCPA, onde os seus dados ficam, com um modelo inicial.
 
@@ -94,7 +96,9 @@ Apenas o Claude Code — a auditoria roda com ferramentas embutidas e não preci
 profundas são opcionais e oferecidas na hora: quando uma ferramenta como `gitleaks` (vasculha o histórico do seu git em
 busca de chaves vazadas) ou `semgrep` (cobertura mais ampla de injeção/XSS) seria útil, o `/ship-check` se oferece para
 configurá-la para você, com a sua aprovação. Pule isso e essas verificações continuam 🟡 "não foi possível verificar". Um
-MCP como o context7, quando você tem um, deixa as sugestões de correção mais afiadas; ele nunca é obrigatório.
+MCP como o context7, quando você tem um, deixa as sugestões de correção mais afiadas; ele nunca é obrigatório. Roda no
+macOS, no Windows e no Linux — no Windows os scanners opcionais se instalam via `winget`/`scoop` em vez de `brew`, e o
+`/ship-check` cuida disso para você.
 
 ## Instalação
 
@@ -123,6 +127,7 @@ Depois rode `/ship-check` em qualquer projeto. (Hospedando o seu próprio fork? 
 - `skills/production-audit/references/` — as checklists detalhadas por domínio (a única fonte de verdade).
 - `tests/fixtures/` e `tests/synthetic/` — apps deliberadamente vulneráveis e na maioria seguros;
   `tests/RESULTS.md` e `tests/SYNTHETIC.md` registram como a auditoria se sai neles (o portão de qualidade).
+
 As entranhas do plugin são escritas em inglês; o relatório e a conversa saem no idioma do
 usuário em tempo de execução.
 

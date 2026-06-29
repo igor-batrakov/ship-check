@@ -3,7 +3,7 @@
 [English](README.md) | [Русский](README.ru.md) | **中文** | [Español](README.es.md) | [Português](README.pt.md)
 
 **一款给 vibe-coded 应用做上线前安全审计的工具。** 一条命令 —— `/ship-check` —— 帮你找出那些会导致
-200 美元意外账单、垃圾机器人和律师函的漏洞，然后一步一步带着你把它们修好。它会用你的语言回复。
+$200 意外账单、垃圾机器人和律师函的漏洞，然后一步一步带着你把它们修好。它会用你的语言回复。
 
 > 专为刚起步的人打造。你用大白话和它说话，它来做检查，按照"这会让你付出什么代价"来解释每一个风险，
 > 并在你同意后帮你修复。不用额外装工具，也不用背命令。
@@ -24,22 +24,22 @@
 `/ship-check` 会写一份 `PROD-AUDIT.md`，把结论放在最上面，并列出那些最先咬到你的问题：
 
 ```
-## Verdict: 🚫 NOT READY TO SHIP
+## 结论：🚫 还不能上线
 
-Three issues can leak data or run up a bill the moment you launch.
+今天就上线，这里面有三个第一天就会咬到你。
 
-## 🔥 Fix these first
-🔴 Your OpenAI key ships in the browser bundle (app/page.tsx:5) — anyone opens
-   DevTools and spends your credit.
-🔴 Row Level Security is off on `orders` (supabase/migrations/0001_init.sql) — any
-   visitor can read every customer's orders.
-🔴 /api/chat calls a paid API with no login and no rate limit — a bot can run up a
-   $200 bill overnight.
+## 🔥 先修这几个
+🔴 你的 OpenAI 密钥就摆在浏览器打包文件里（app/page.tsx:5）—— 任何人打开
+   DevTools 就能拿到，然后花掉你的额度。
+🔴 `orders` 表没开 Row Level Security —— 此刻任何访客都能读到每一位
+   客户的订单。
+🔴 /api/chat 调用了付费 API，既没登录也没限流 —— 一个机器人跑一晚
+   就是一张 $200 的账单。
 
-## Data access
-🟢 Uploads bucket is private and served through signed URLs — checked, clean.
-🟡 Couldn't confirm RLS in the live database — your migrations enable it; open the
-   Supabase dashboard and verify.
+## 数据访问
+🟢 上传用的存储桶是私有的，通过签名 URL 提供 —— 已检查，没问题。
+🟡 没能从代码确认线上数据库里的 RLS —— 你的迁移脚本会把它打开；
+   打开 Supabase 仪表盘再核对一下。
 ```
 
 每一项检查最终都会落到三种状态之一：
@@ -56,18 +56,19 @@ Three issues can leak data or run up a bill the moment you launch.
 ```
 > /ship-check
 
-I see a Next.js + Supabase app. Running the pre-launch audit — about a minute.
+我看到这是一个 Next.js + Supabase 应用。正在跑上线前审计 —— 大约一分钟。
 …
-Verdict: 🚫 not ready to ship. Three things will bite you on day one. Fix them together?
+结论：🚫 还不能上线。有三件事第一天就会咬到你。要一起修掉吗？
 
-> yes
+> 好
 
-First: your OpenAI key is in the frontend bundle, so anyone can read it and spend your credit.
-I'll move the call to a server route and read the key from a server-only variable. Apply this?
+先说最吓人的那个：你的 OpenAI 密钥就在前端打包文件里 —— 任何人都能读到它，然后花掉你的
+额度。我会把这个调用挪到服务端路由，并从一个只在服务端可见的变量里读取密钥。要应用这个改动吗？
 
-> go ahead
+> 可以
 
-Done — the key lives on the server now, and the page still builds. Next: Row Level Security…
+搞定 —— 密钥已经从客户端拿掉了，页面照样能构建。那个 $200 账单的风险就堵上了。
+接下来：`orders` 上的 Row Level Security……
 ```
 
 ## 它会检查什么
@@ -80,7 +81,7 @@ Done — the key lives on the server now, and the page still builds. Next: Row L
   service key、默认对外公开的文件存储。
 - **🔐 认证健壮性** —— 密码输错时的锁定、为不存在的邮箱发起重置、重复注册（一份你点着走的浏览器检查清单）。
 - **🛡️ Web 安全 (OWASP)** —— 响应头、SQL 注入、XSS、服务端校验、生产环境里忘了关的 debug 模式。
-- **💸 滥用与成本** —— 对付费 API 的无保护调用（即"一夜 200 美元"的风险）、限流、表单上的 CAPTCHA、CORS。
+- **💸 滥用与成本** —— 对付费 API 的无保护调用（即"一夜 $200"的风险）、限流、表单上的 CAPTCHA、CORS。
 - **⚖️ 合规** —— 隐私政策、GDPR/CCPA、你的数据存放在哪里，并附一份入门模板。
 
 ## 环境要求
@@ -89,6 +90,8 @@ Done — the key lives on the server now, and the page still builds. Next: Row L
 当场提供：当 `gitleaks`（扫描你的 git 历史，查找泄露的密钥）或 `semgrep`（覆盖更广的注入/XSS）
 这类工具能派上用场时，`/ship-check` 会在征得你同意后帮你把它装好。跳过它，那些检查就会保持
 🟡"无法确认"。如果你装了 context7 这样的 MCP，它能让修复建议更精准；但它从来都不是必需的。
+可在 macOS、Windows 和 Linux 上运行 —— 在 Windows 上，那些可选的扫描器会通过 `winget`/`scoop`
+（而不是 `brew`）安装，这件事 `/ship-check` 会帮你搞定。
 
 ## 安装
 
@@ -117,6 +120,7 @@ Done — the key lives on the server now, and the page still builds. Next: Row L
 - `skills/production-audit/references/` —— 各领域的深度检查清单（唯一的事实来源）。
 - `tests/fixtures/` 和 `tests/synthetic/` —— 故意做成有漏洞的应用，以及基本安全的应用；
   `tests/RESULTS.md` 和 `tests/SYNTHETIC.md` 记录了审计在它们身上的表现（质量门槛）。
+
 插件的内部实现是用英文写的；报告和对话会在运行时以用户的语言输出。
 
 ## 参与贡献

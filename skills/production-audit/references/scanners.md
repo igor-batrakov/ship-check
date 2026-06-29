@@ -16,6 +16,15 @@ yes, installs it for the user (see "Offering a deeper pass" below). Whatever sta
 Before running anything in the shell, give the user a short plain-language heads-up ("I'll run a
 quick secret scan now"), without technical detail.
 
+## Platform note (macOS / Windows / Linux)
+
+Code search uses Claude Code's **built-in Grep and Glob tools** (ripgrep-based), which behave the
+same on every OS — so the core detection never depends on a shell. Shell commands (invoking an
+external scanner, `command -v`) need a POSIX shell: macOS and Linux have one; on **Windows** they
+work when **Git for Windows** is installed (Git Bash) and fail under PowerShell alone — there, run
+the heuristic patterns through the built-in Grep tool and mark scanner-only checks 🟡. `npx` works
+on every OS.
+
 ---
 
 ## 1. gitleaks — secrets in code and git history
@@ -41,8 +50,8 @@ quick secret scan now"), without technical detail.
 - **fallback:** the manual patterns from `04-web-security.md` (string concatenation in SQL,
   `dangerouslySetInnerHTML`, unescaped output) + mark 🟡 on what's not covered.
 
-> Note: semgrep is a Python tool and is usually not installable via `npx` either. If it can't
-> run, use the manual patterns and mark 🟡.
+> Note: semgrep is a Python tool — not installable via `npx`, and it has **no native Windows build**
+> (WSL or Docker only). If it can't run, use the manual patterns and mark 🟡.
 
 ## 3. npm audit / equivalents — vulnerable dependencies (CVEs)
 
@@ -76,10 +85,10 @@ tag each unrun check with the tool that would deepen it. After the agents return
 
 **Offer only when the tool materially changes the result.** The two worth offering:
 
-| Tool | What it adds over the baseline | Install ladder (pick the first that exists) |
+| Tool | What it adds over the baseline | Install — pick by OS, first that works |
 |---|---|---|
-| **gitleaks** | scans the **git history** for leaked keys — invisible to grep on the working tree | `brew install gitleaks` → `go install github.com/gitleaks/gitleaks/v8@latest` → download the release binary |
-| **semgrep** | broader injection/XSS coverage than the manual patterns | `pipx install semgrep` → `pip install semgrep` → `brew install semgrep` |
+| **gitleaks** | scans the **git history** for leaked keys — invisible to grep on the working tree | macOS/Linux: `brew install gitleaks` · Windows: `winget install -e --id Gitleaks.Gitleaks` (or `choco install gitleaks`) · any OS: `go install github.com/gitleaks/gitleaks/v8@latest`, or download the release binary |
+| **semgrep** | broader injection/XSS coverage than the manual patterns | macOS/Linux: `pipx install semgrep` (or `pip install semgrep` / `brew install semgrep`) · **Windows: no native build** — WSL (`pip install semgrep`) or Docker only; otherwise leave the check 🟡 |
 
 (`npm audit` / `osv-scanner` are attempted via `npx` already; if that fails, fold them into the
 same offer. `context7` is an MCP, set up at the fix phase — see `remediation-playbook.md`, not here.)

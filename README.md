@@ -28,20 +28,20 @@ issues with you — one change at a time, with your go-ahead.
 ```
 ## Verdict: 🚫 NOT READY TO SHIP
 
-Three issues can leak data or run up a bill the moment you launch.
+Ship this today and three of these bite you on day one.
 
 ## 🔥 Fix these first
-🔴 Your OpenAI key ships in the browser bundle (app/page.tsx:5) — anyone opens
+🔴 Your OpenAI key is sitting in the browser bundle (app/page.tsx:5) — anyone opens
    DevTools and spends your credit.
-🔴 Row Level Security is off on `orders` (supabase/migrations/0001_init.sql) — any
-   visitor can read every customer's orders.
-🔴 /api/chat calls a paid API with no login and no rate limit — a bot can run up a
-   $200 bill overnight.
+🔴 Row Level Security is off on `orders` — right now any visitor can read every
+   customer's order.
+🔴 /api/chat calls a paid API with no login and no rate limit — one bot overnight
+   is a $200 bill.
 
 ## Data access
-🟢 Uploads bucket is private and served through signed URLs — checked, clean.
-🟡 Couldn't confirm RLS in the live database — your migrations enable it; open the
-   Supabase dashboard and verify.
+🟢 Uploads bucket is private, served through signed URLs — checked, clean.
+🟡 Couldn't confirm RLS in the live DB from the code — your migrations turn it on;
+   open the Supabase dashboard and double-check.
 ```
 
 Every check lands in one of three states:
@@ -60,16 +60,18 @@ That honest third state is the point: a tool that prints ✅ while it's blind is
 
 I see a Next.js + Supabase app. Running the pre-launch audit — about a minute.
 …
-Verdict: 🚫 not ready to ship. Three things will bite you on day one. Fix them together?
+Verdict: 🚫 not ready to ship. Three things would bite you on day one. Fix them together?
 
 > yes
 
-First: your OpenAI key is in the frontend bundle, so anyone can read it and spend your credit.
-I'll move the call to a server route and read the key from a server-only variable. Apply this?
+First one's the scary one: your OpenAI key is in the frontend bundle — anyone can read it and
+spend your credit. I'll move the call to a server route and read the key from a server-only
+variable. Apply this?
 
 > go ahead
 
-Done — the key lives on the server now, and the page still builds. Next: Row Level Security…
+Done — the key's off the client and the page still builds. That's the $200-bill risk closed.
+Next: Row Level Security on `orders`…
 ```
 
 ## What it checks
@@ -94,7 +96,9 @@ Just Claude Code — the audit runs on built-in tools and needs no extra setup. 
 optional and offered on the spot: when a tool like `gitleaks` (scans your git history for leaked
 keys) or `semgrep` (wider injection/XSS coverage) would help, `/ship-check` offers to set it up for
 you, with your approval. Skip it and those checks stay 🟡 "couldn't verify". An MCP such as context7,
-when you have it, sharpens the fix suggestions; it is never required.
+when you have it, sharpens the fix suggestions; it is never required. Runs on macOS, Windows, and
+Linux — on Windows the optional scanners install through `winget`/`scoop` instead of `brew`, and
+`/ship-check` handles that for you.
 
 ## Install
 
@@ -123,6 +127,7 @@ Then run `/ship-check` in any project. (Hosting your own fork? Point the first c
 - `skills/production-audit/references/` — the deep per-domain checklists (the single source of truth).
 - `tests/fixtures/` and `tests/synthetic/` — deliberately vulnerable and mostly-secure apps;
   `tests/RESULTS.md` and `tests/SYNTHETIC.md` record how the audit performs on them (the quality gate).
+
 The plugin's internals are written in English; the report and the conversation come out in the
 user's language at runtime.
 

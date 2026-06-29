@@ -26,22 +26,22 @@
 `/ship-check` пишет `PROD-AUDIT.md`: сверху вердикт, а ниже то, что ударит вас первым:
 
 ```
-## Verdict: 🚫 NOT READY TO SHIP
+## Вердикт: 🚫 НЕ ГОТОВО К ЗАПУСКУ
 
-Three issues can leak data or run up a bill the moment you launch.
+Выкатите это сегодня — и три из этих дыр ударят по вам в первый же день.
 
-## 🔥 Fix these first
-🔴 Your OpenAI key ships in the browser bundle (app/page.tsx:5) — anyone opens
-   DevTools and spends your credit.
-🔴 Row Level Security is off on `orders` (supabase/migrations/0001_init.sql) — any
-   visitor can read every customer's orders.
-🔴 /api/chat calls a paid API with no login and no rate limit — a bot can run up a
-   $200 bill overnight.
+## 🔥 Чините в первую очередь
+🔴 Ваш ключ OpenAI лежит в браузерном бандле (app/page.tsx:5) — любой откроет
+   DevTools и потратит ваш кредит.
+🔴 Row Level Security выключен на `orders` — прямо сейчас любой посетитель может
+   прочитать заказы всех клиентов.
+🔴 /api/chat дёргает платный API без входа и без ограничения частоты — один бот за
+   ночь — это счёт на $200.
 
-## Data access
-🟢 Uploads bucket is private and served through signed URLs — checked, clean.
-🟡 Couldn't confirm RLS in the live database — your migrations enable it; open the
-   Supabase dashboard and verify.
+## Доступ к данным
+🟢 Бакет с загрузками приватный, отдаётся через подписанные URL — проверено, чисто.
+🟡 Не удалось подтвердить RLS в живой БД по коду — ваши миграции его включают;
+   откройте дашборд Supabase и перепроверьте.
 ```
 
 Каждая проверка приходит к одному из трёх состояний:
@@ -58,18 +58,20 @@ Three issues can leak data or run up a bill the moment you launch.
 ```
 > /ship-check
 
-I see a Next.js + Supabase app. Running the pre-launch audit — about a minute.
+Вижу приложение на Next.js + Supabase. Запускаю аудит перед запуском — примерно минута.
 …
-Verdict: 🚫 not ready to ship. Three things will bite you on day one. Fix them together?
+Вердикт: 🚫 не готово к запуску. Три вещи ударят по вам в первый же день. Починим их вместе?
 
-> yes
+> да
 
-First: your OpenAI key is in the frontend bundle, so anyone can read it and spend your credit.
-I'll move the call to a server route and read the key from a server-only variable. Apply this?
+Первая — самая страшная: ваш ключ OpenAI в браузерном бандле, любой может его прочитать и
+потратить ваш кредит. Я перенесу вызов в серверный маршрут и буду читать ключ из серверной
+переменной. Применить?
 
-> go ahead
+> давай
 
-Done — the key lives on the server now, and the page still builds. Next: Row Level Security…
+Готово — ключ убран с клиента, и страница по-прежнему собирается. Риск счёта на $200 закрыт.
+Дальше: Row Level Security на `orders`…
 ```
 
 ## Что он проверяет
@@ -96,7 +98,9 @@ Done — the key lives on the server now, and the page still builds. Next: Row L
 инструмент вроде `gitleaks` (сканирует историю git на утёкшие ключи) или `semgrep` (шире покрывает
 инъекции/XSS), `/ship-check` предложит настроить его за вас, с вашего согласия. Откажетесь — и эти
 проверки останутся 🟡 «не удалось проверить». MCP вроде context7, если он у вас есть, делает советы по
-исправлению точнее; он никогда не обязателен.
+исправлению точнее; он никогда не обязателен. Работает на macOS, Windows и Linux — на Windows
+опциональные сканеры ставятся через `winget`/`scoop` вместо `brew`, и `/ship-check` сам всё это делает
+за вас.
 
 ## Установка
 
@@ -125,6 +129,7 @@ Done — the key lives on the server now, and the page still builds. Next: Row L
 - `skills/production-audit/references/` — подробные чеклисты по каждой области (единый источник истины).
 - `tests/fixtures/` и `tests/synthetic/` — намеренно уязвимые и в основном безопасные приложения;
   `tests/RESULTS.md` и `tests/SYNTHETIC.md` фиксируют, как аудит на них отрабатывает (контроль качества).
+
 Внутренности плагина написаны на английском; отчёт и сам разговор выходят на языке
 пользователя во время работы.
 

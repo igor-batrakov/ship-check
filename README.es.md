@@ -26,22 +26,22 @@ problemas contigo — un cambio a la vez, con tu visto bueno.
 `/ship-check` escribe `PROD-AUDIT.md` con el veredicto arriba y las cosas que te muerden primero:
 
 ```
-## Verdict: 🚫 NOT READY TO SHIP
+## Veredicto: 🚫 NO LISTO PARA LANZAR
 
-Three issues can leak data or run up a bill the moment you launch.
+Lánzalo hoy y tres de estos te muerden el primer día.
 
-## 🔥 Fix these first
-🔴 Your OpenAI key ships in the browser bundle (app/page.tsx:5) — anyone opens
-   DevTools and spends your credit.
-🔴 Row Level Security is off on `orders` (supabase/migrations/0001_init.sql) — any
-   visitor can read every customer's orders.
-🔴 /api/chat calls a paid API with no login and no rate limit — a bot can run up a
-   $200 bill overnight.
+## 🔥 Arregla esto primero
+🔴 Tu clave de OpenAI está metida en el bundle del navegador (app/page.tsx:5) — cualquiera
+   abre DevTools y gasta tu crédito.
+🔴 Row Level Security está apagado en `orders` — ahora mismo cualquier visitante puede leer
+   los pedidos de todos los clientes.
+🔴 /api/chat llama a una API de pago sin login y sin límite de tasa — un bot de una noche
+   es una factura de $200.
 
-## Data access
-🟢 Uploads bucket is private and served through signed URLs — checked, clean.
-🟡 Couldn't confirm RLS in the live database — your migrations enable it; open the
-   Supabase dashboard and verify.
+## Acceso a datos
+🟢 El bucket de subidas es privado, servido a través de URLs firmadas — revisado, limpio.
+🟡 No se pudo confirmar RLS en la base de datos en vivo desde el código — tus migraciones lo
+   activan; abre el panel de Supabase y verifícalo de nuevo.
 ```
 
 Cada revisión cae en uno de tres estados:
@@ -58,18 +58,20 @@ Ese honesto tercer estado es el punto: una herramienta que imprime ✅ mientras 
 ```
 > /ship-check
 
-I see a Next.js + Supabase app. Running the pre-launch audit — about a minute.
+Veo una app Next.js + Supabase. Corriendo la auditoría previa al lanzamiento — alrededor de un minuto.
 …
-Verdict: 🚫 not ready to ship. Three things will bite you on day one. Fix them together?
+Veredicto: 🚫 no está listo para lanzar. Tres cosas te morderían el primer día. ¿Las arreglamos juntos?
 
-> yes
+> sí
 
-First: your OpenAI key is in the frontend bundle, so anyone can read it and spend your credit.
-I'll move the call to a server route and read the key from a server-only variable. Apply this?
+La primera es la que da miedo: tu clave de OpenAI está en el bundle del frontend — cualquiera puede leerla y
+gastar tu crédito. Voy a mover la llamada a una ruta de servidor y leer la clave desde una variable solo de
+servidor. ¿Aplico esto?
 
-> go ahead
+> adelante
 
-Done — the key lives on the server now, and the page still builds. Next: Row Level Security…
+Listo — la clave ya no está en el cliente y la página sigue compilando. Ese es el riesgo de la factura de $200 cerrado.
+Sigue: Row Level Security en `orders`…
 ```
 
 ## Qué revisa
@@ -95,6 +97,8 @@ más profundos son opcionales y se ofrecen sobre la marcha: cuando una herramien
 historial de git en busca de claves filtradas) o `semgrep` (cobertura más amplia de inyección/XSS) ayudaría,
 `/ship-check` se ofrece a configurarla por ti, con tu aprobación. Sáltala y esas revisiones se quedan en 🟡 "no se
 pudo verificar". Un MCP como context7, cuando lo tienes, afina las sugerencias de corrección; nunca es obligatorio.
+Funciona en macOS, Windows y Linux — en Windows los escáneres opcionales se instalan a través de `winget`/`scoop`
+en lugar de `brew`, y `/ship-check` se encarga de eso por ti.
 
 ## Instalación
 
@@ -123,6 +127,7 @@ Luego ejecuta `/ship-check` en cualquier proyecto. (¿Alojas tu propio fork? Apu
 - `skills/production-audit/references/` — los checklists profundos por dominio (la única fuente de verdad).
 - `tests/fixtures/` y `tests/synthetic/` — apps deliberadamente vulnerables y mayormente seguras;
   `tests/RESULTS.md` y `tests/SYNTHETIC.md` registran cómo se desempeña la auditoría en ellas (el control de calidad).
+
 Las entrañas del plugin están escritas en inglés; el reporte y la conversación salen en el
 idioma del usuario en tiempo de ejecución.
 
